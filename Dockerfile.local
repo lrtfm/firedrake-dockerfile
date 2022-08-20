@@ -1,0 +1,19 @@
+# Dockerfile for firedrake
+
+ARG BASE_IMAGE=lrtfm/firedrake-real-int32:latest
+
+FROM $BASE_IMAGE
+
+ARG UID
+ARG GID
+
+# This DockerFile is looked after by
+MAINTAINER Zongze Yang <yangzongze@gmail.com>
+
+USER root
+RUN usermod -u $UID firedrake && \
+    groupmod -g $GID firedrake && \
+    chown -R firedrake:firedrake /home/firedrake
+
+USER firedrake
+WORKDIR /home/firedrake

@@ -1,0 +1,21 @@
+# DockerFile for firedrake real int32
+
+FROM lrtfm/firedrake-env:latest
+
+# This DockerFile is looked after by
+MAINTAINER Zongze Yang <yangzongze@gmail.com>
+
+USER firedrake
+WORKDIR /home/firedrake
+
+# Now install Firedrake.
+RUN curl -O https://raw.githubusercontent.com/firedrakeproject/firedrake/master/scripts/firedrake-install
+RUN bash -c "python3 firedrake-install --slepc --no-package-manager --disable-ssh --documentation-dependencies --remove-build-files"
+
+RUN bash -c ". /home/firedrake/firedrake/bin/activate && pip install mpltools meshio gmsh scipy pyyaml pandas tqdm"
+RUN bash -c ". /home/firedrake/firedrake/bin/activate && pip install jupyterlab ipyparallel"
+
+ENV OMP_NUM_THREADS=1
+ENV PATH=/home/firedrake/firedrake/bin:$PATH
+
+CMD /home/firedrake/firedrake/bin/jupyter-lab --ip 0.0.0.0 --no-browser --allow-root

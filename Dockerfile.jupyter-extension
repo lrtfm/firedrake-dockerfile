@@ -1,0 +1,18 @@
+# Dockerfile for firedrake
+
+ARG BASE_IMAGE=firedrake-complex-int64-local
+
+FROM $BASE_IMAGE
+
+# This DockerFile is looked after by
+MAINTAINER Zongze Yang <yangzongze@gmail.com>
+
+RUN curl -fsSL https://deb.nodesource.com/setup_lts.x | sudo -E bash - \
+    && sudo apt-get update \
+    && sudo apt-get install -y nodejs \
+    && sudo rm -rf /var/lib/apt/lists/*
+
+RUN bash -c ". /home/firedrake/firedrake/bin/activate && pip install jupyterlab-git"
+
+USER firedrake
+WORKDIR /home/firedrake
