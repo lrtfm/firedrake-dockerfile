@@ -5,15 +5,23 @@ ARG BASE_IMAGE=lrtfm/firedrake-real-int32:latest
 FROM $BASE_IMAGE
 
 ARG UID
-ARG GID
+ARG LOCAL_USER=firedrake-local
 
 # This DockerFile is looked after by
 MAINTAINER Zongze Yang <yangzongze@gmail.com>
 
 USER root
-RUN usermod -u $UID firedrake && \
-    groupmod -g $GID firedrake && \
-    chown -R firedrake:firedrake /home/firedrake
+RUN useradd -m -s /bin/bash -G firedrake,sudo -u $UID $LOCAL_USER && \
+    echo "firedrake:docker" | chpasswd && \
+    echo "$LOCAL_USER ALL=(ALL) NOPASSWD: ALL" >> /etc/sudoers && \
+    ldconfig
 
-USER firedrake
-WORKDIR /home/firedrake
+
+USER $LOCAL_USER
+WORKDIR /home/$LOCAL_USER
+
+RUN git config --global --add safe.directory '*'
+
+ENV FIREDRAKE_TSFC_KERNEL_CACHE_DIR=/home/$LOCAL_USER/.cache/tsfc
+ENV PYOP2_CACHE_DIR=/home/$LOCAL_USER/.cache/pyop2
+
