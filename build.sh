@@ -66,7 +66,7 @@ for version in $VERSIONS
 do
     docker build $BARGS -f Dockerfile --build-arg VERSION=$version --tag lrtfm/firedrake-$version .
     docker build $BARGS --build-arg BASE_IMAGE=lrtfm/firedrake-$version:latest \
-        --build-arg UID=`id -u` --tag firedrake-$version-local \
+        --build-arg UID=`id -u` --tag lrtfm/firedrake-$version-local \
         -f Dockerfile.local .
 done
 
