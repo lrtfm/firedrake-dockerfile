@@ -6,32 +6,42 @@ _VERSIONS="real-int32 real-int32-debug complex-int64 complex-int64-debug"
 
 help_fun() {
     echo ""
+    echo "Build firedrake images"
+    echo ""
     echo "Usage:"
-    echo "  $0 [-p] [-b <versionlist>]"
+    echo "  $0 [-b] [-p] [-t <versionlist>]"
     echo "    -p: push the build images"
-    echo "    -b: a list of build versions"
+    echo "    -b: build env and base images too"
+    echo "    -t: a list of build versions"
     echo "        optinal versions are:"
     echo "          '$_VERSIONS'"
     echo "        build all the versions if this option is omit"
     echo ""
     echo "Example:"
-    echo "  $0"
-    echo "  $0 -p"
-    echo "  $0 -b real-int32"
-    echo "  $0 -p -b 'real-int32 real-int32-debug'"
-    echo "  $0 -p -b \"real-int32 real-int64\""
+    echo "  $0 # only build local image real-int32"
+    echo "  $0 -t real-int32"
+    echo "  $0 -t all # build local images all"
+    echo "  $0 -b -t real-int32"
+    echo "  $0 -p -t 'real-int32 real-int32-debug'"
+    echo "  $0 -p -t \"real-int32 real-int64\""
     echo ""
     exit -1
 }
 
-while getopts 'pb:' OPT
+while getopts 'bhpt:' OPT
 do
     case $OPT in
         p) PUSH="push";;
-        b) VERSIONS=$OPTARG;;
+        t) VERSIONS=$OPTARG;;
+        b) BUILD="build";;
         ?) help_fun;;
     esac
 done
+
+if [[ "$VERSIONS" == "all" ]]
+then
+    VERSIONS=$_VERSIONS
+fi
 
 # check the valid versions
 for v in $VERSIONS
@@ -52,22 +62,30 @@ do
     fi
 done
 
-VERSIONS="${VERSIONS-$_VERSIONS}"
+VERSIONS="${VERSIONS-real-int32}"
 
 echo Build versions: $VERSIONS
-echo Those version will be pushed after the build process
 
-set -x
+# set -x
 
 BARGS='--network host'
-docker build $BARGS -f Dockerfile.env --tag lrtfm/firedrake-env .
+if [[ "$BUILD" == "build" ]]; then
+    docker build $BARGS -f Dockerfile.env --tag lrtfm/firedrake-env .
+fi
 
 for version in $VERSIONS
 do
-    docker build $BARGS -f Dockerfile --build-arg VERSION=$version --tag lrtfm/firedrake-$version .
+    if [[ "$BUILD" == "build" ]]; then
+        echo ""
+        echo "Build image: firedrake-$version"
+        docker build $BARGS -f Dockerfile --build-arg VERSION=$version --tag lrtfm/firedrake-$version .
+    fi
+    echo ""
+    echo "Build local image: firedrake-$version-local-$USER"
     docker build $BARGS --build-arg BASE_IMAGE=lrtfm/firedrake-$version:latest \
-        --build-arg UID=`id -u` --tag lrtfm/firedrake-$version-local \
+        --build-arg UID=`id -u` --tag firedrake-$version-local-$USER \
         -f Dockerfile.local .
+    echo ""
 done
 
 if [[ "$PUSH" != "push" ]]; then
@@ -76,6 +94,7 @@ fi
 
 tag=`date +%Y%m%d`
 
+# echo Those version will be pushed after the build process
 for version in env $VERSIONS
 do
     docker tag lrtfm/firedrake-$version lrtfm/firedrake-$version:$tag

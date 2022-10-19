@@ -17,6 +17,7 @@ import click
 #   3. Pragmatic cannot be built with 64-bit integers
 #
 
+
 def get_petsc_opts(int_type, complex=False, debug=False):
 
     common_pkgs = [
@@ -24,23 +25,15 @@ def get_petsc_opts(int_type, complex=False, debug=False):
         "fftw",
         # "hpddm",
         # "ks", "libceed",
-        "mmg", # "muparser", "opencascade",
-        "p4est", "parmmg",
-        "triangle", "tetgen"
+        "mmg",  # "muparser", "opencascade",
+        "p4est",
+        "parmmg",
+        "triangle",
+        "tetgen",
     ]
-    debug_map = {
-        "debug": [],
-        "nondebug": ["libpng"]
-    }
-    int_type_map = {
-        "int32": ["pragmatic"],
-        "int64": ["mumps", "scalapack"]
-    }
-    field_map = {
-        "real": [],
-        "complex": []
-    }
-
+    debug_map = {"debug": [], "nondebug": ["libpng"]}
+    int_type_map = {"int32": ["pragmatic"], "int64": ["mumps", "scalapack"]}
+    field_map = {"real": [], "complex": []}
 
     if int_type not in int_type_map.keys():
         raise "Int type {int_type} not in int_type_map.keys()!"
@@ -55,13 +48,14 @@ def get_petsc_opts(int_type, complex=False, debug=False):
 
     return " \\\n".join(opts)
 
+
 def get_firedrake_opts(int_type, complex=False, debug=False):
     common_opts = [
         "--slepc",
         "--no-package-manager",
         "--disable-ssh",
         "--documentation-dependencies",
-        "--remove-build-files"
+        "--remove-build-files",
     ]
 
     debug_map = {
@@ -88,9 +82,9 @@ def get_firedrake_opts(int_type, complex=False, debug=False):
 
     return " \\\n  ".join(opts)
 
+
 def get_version_string(int_type, complex=False, debug=False):
-    return ("complex-" if complex else "real-") + int_type + \
-           ("-debug" if debug else "")
+    return ("complex-" if complex else "real-") + int_type + ("-debug" if debug else "")
 
 
 def get_dockerfile_content(int_type, complex=False, debug=False):
@@ -101,8 +95,10 @@ def get_dockerfile_content(int_type, complex=False, debug=False):
     petsc_opts = get_petsc_opts(int_type, complex=complex, debug=debug)
     firedrake_opts = get_firedrake_opts(int_type, complex=complex, debug=debug)
 
-    install_script_url = "https://raw.githubusercontent.com/firedrakeproject"\
-                     "/firedrake/master/scripts/firedrake-install"
+    install_script_url = (
+        "https://raw.githubusercontent.com/firedrakeproject"
+        "/firedrake/master/scripts/firedrake-install"
+    )
 
     content = f"""
 FROM lrtfm/firedrake-env:latest
@@ -153,27 +149,42 @@ CMD /home/firedrake/firedrake/bin/jupyter-lab --ip 0.0.0.0 --no-browser --allow-
 
     return content
 
+
 @click.command()
-@click.option('--int-type',
-              default="int32",
-              required=False,
-              help='int type for the build')
-@click.option('--complex',
-              default=False,
-              required=False,
-              help='build complex mode or not')
-@click.option('--debug',
-              default=False,
-              required=False,
-              help='build debug version')
-@click.option('--filename',
-                default='Dockerfile',
-                required=False,
-                help='output the docker file')
-@click.option('--path',
-                default='generate',
-                required=False,
-                help='output the docker file')
+@click.option(
+    "--int-type",
+    type=click.Choice(["int32", "int64"]),
+    default="int32",
+    required=False,
+    help="int type for the build",
+)
+@click.option(
+    "-c",
+    "-complex",
+    "--complex",
+    is_flag=True,
+    default=False,
+    required=False,
+    help="build complex mode",
+)
+@click.option(
+    "-d",
+    "--debug",
+    is_flag=True,
+    default=False,
+    required=False,
+    help="build debug version",
+)
+@click.option(
+    "-f",
+    "--filename",
+    default="Dockerfile",
+    required=False,
+    help="output the docker file",
+)
+@click.option(
+    "-p", "--path", default="generate", required=False, help="output the docker file"
+)
 def generate_dockerfile(int_type, complex, debug, path, filename):
 
     version = get_version_string(int_type, complex, debug)
@@ -181,8 +192,9 @@ def generate_dockerfile(int_type, complex, debug, path, filename):
     if not os.path.exists(path):
         os.makedirs(path)
     fullname = os.path.join(path, ".".join([filename, version]))
-    with open(fullname, 'w') as f:
+    with open(fullname, "w") as f:
         f.write(content)
+
 
 # TODO:
 # def build_images():
@@ -198,4 +210,3 @@ def generate_dockerfile(int_type, complex, debug, path, filename):
 
 if __name__ == "__main__":
     generate_dockerfile()
-
