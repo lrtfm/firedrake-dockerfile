@@ -68,7 +68,7 @@ python3 firedrake-install $FIRDRAKE_COMMON_OPTS \
 && $CLEAN_PIP_CACHED \
 "
 
-FROM lrtfm/firedrake-env:latest AS base
+FROM lrtfm/firedrake:env AS base
 # ARG CXX_DIALECT_HACK="sed -i.bkp -e 's/\(--with-cxx-dialect=\)C++11/\1gnu++11/g' firedrake-install"
 USER firedrake
 WORKDIR /home/firedrake

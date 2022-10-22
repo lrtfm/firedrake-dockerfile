@@ -16,6 +16,7 @@ help_fun() {
     echo "        optinal versions are:"
     echo "          '$_VERSIONS'"
     echo "        build all the versions if this option is omit"
+    echo "    -n: do not build local image"
     echo ""
     echo "Example:"
     echo "  $0 # only build local image real-int32"
@@ -28,12 +29,13 @@ help_fun() {
     exit -1
 }
 
-while getopts 'bhpt:' OPT
+while getopts 'nbhpt:' OPT
 do
     case $OPT in
         p) PUSH="push";;
         t) VERSIONS=$OPTARG;;
         b) BUILD="build";;
+        n) NOLOCAL="nolocal";;
         ?) help_fun;;
     esac
 done
@@ -64,13 +66,13 @@ done
 
 VERSIONS="${VERSIONS-real-int32}"
 
-echo Build versions: $VERSIONS
+echo Versions: $VERSIONS
 
 # set -x
 
 BARGS='--network host'
 if [[ "$BUILD" == "build" ]]; then
-    docker build $BARGS -f Dockerfile.env --tag lrtfm/firedrake-env .
+    docker build $BARGS -f Dockerfile.env --tag lrtfm/firedrake:env .
 fi
 
 for version in $VERSIONS
@@ -78,26 +80,32 @@ do
     if [[ "$BUILD" == "build" ]]; then
         echo ""
         echo "Build image: firedrake-$version"
-        docker build $BARGS -f Dockerfile --build-arg VERSION=$version --tag lrtfm/firedrake-$version .
+        docker build $BARGS -f Dockerfile --build-arg VERSION=$version --tag lrtfm/firedrake:$version .
     fi
-    echo ""
-    echo "Build local image: firedrake-$version-local-$USER"
-    docker build $BARGS --build-arg BASE_IMAGE=lrtfm/firedrake-$version:latest \
-        --build-arg UID=`id -u` --tag firedrake-$version-local-$USER \
-        -f Dockerfile.local .
-    echo ""
+    if [[ "$NOLOCAL" != "nolocal" ]]; then
+        echo ""
+        echo "Build local image: firedrake-$version-local-$USER"
+        docker build $BARGS --build-arg BASE_IMAGE=lrtfm/firedrake:$version \
+            --build-arg UID=`id -u` --tag firedrake-$version-local-$USER \
+            -f Dockerfile.local .
+        echo ""
+    fi
+
 done
 
 if [[ "$PUSH" != "push" ]]; then
     exit 0
 fi
 
-tag=`date +%Y%m%d`
+# tag=`date +%Y%m%d`
 
 # echo Those version will be pushed after the build process
 for version in env $VERSIONS
 do
-    docker tag lrtfm/firedrake-$version lrtfm/firedrake-$version:$tag
-    docker push lrtfm/firedrake-$version
-    docker push lrtfm/firedrake-$version:$tag
+    tag=`docker history --format "{{.CreatedAt}}" lrtfm/firedrake:$version | head -n1 | sed -e 's/\(.*\)T\(.*\)/\1/g'`
+    tag=${tag//-/}
+    docker tag  lrtfm/firedrake:$version lrtfm/firedrake:$version-$tag
+    docker push lrtfm/firedrake:$version
+    docker push lrtfm/firedrake:$version-$tag
+    docker rmi  lrtfm/firedrake:$version-$tag
 done
