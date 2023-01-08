@@ -9,17 +9,8 @@
 ARG VERSION=real-int32
 
 # Notes on PETSc:
-#   1. hpddm needs -fext-numeric-literals
-#      Ref: https://gcc.gnu.org/onlinedocs/gcc/C_002b_002b-Dialect-Options.html
-#      Change the dialect from c++11 to gnu++11 can fix this.
-#      See ARG CXX_DIALECT_HACK if this is needed
 #
-#   2. There is an error when build libpng with optiong '-g3'
-#      Ref:
-#        + https://github.com/glennrp/libpng/issues/254
-#        . https://gitlab.com/petsc/petsc/-/issues/1265
-#
-#   3. Pragmatic cannot be built with 64-bit integers
+#   1. Pragmatic cannot be built with 64-bit integers
 #
 
 ARG PETSC_COMMON_OPTS="\
@@ -29,8 +20,9 @@ ARG PETSC_COMMON_OPTS="\
 --download-parmmg \
 --download-triangle \
 --download-tetgen \
+--download-hpddm \
+--download-libpng \
 "
-# --download-hpddm \
 # --download-bamg --download-ctetgen \
 # --download-egads --download-exodusii \
 # --download-ks --download-libceed \
@@ -38,7 +30,7 @@ ARG PETSC_COMMON_OPTS="\
 # --download-muparser \
 
 # ARG PETSC_DEBUG_OPTS=""
-ARG PETSC_NONDEBUG_OPTS="--download-libpng"
+ARG PETSC_NONDEBUG_OPTS=""
 ARG PETSC_INT64_OPTS="--download-scalapack --download-mumps"
 ARG PETSC_INT32_OPTS="--download-pragmatic"
 
@@ -69,11 +61,9 @@ python3 firedrake-install $FIRDRAKE_COMMON_OPTS \
 "
 
 FROM lrtfm/firedrake:env AS base
-# ARG CXX_DIALECT_HACK="sed -i.bkp -e 's/\(--with-cxx-dialect=\)C++11/\1gnu++11/g' firedrake-install"
 USER firedrake
 WORKDIR /home/firedrake
 RUN curl -O https://raw.githubusercontent.com/firedrakeproject/firedrake/master/scripts/firedrake-install
-# RUN bash -c "$CXX_DIALECT_HACK"
 
 FROM base AS debug
 ARG DEBUG_HACK="sed -i.bak -e 's/\(--with-debugging=\)0/\11/g' firedrake-install"
