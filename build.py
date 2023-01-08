@@ -101,7 +101,7 @@ def get_dockerfile_content(int_type, complex=False, debug=False):
     )
 
     content = f"""
-FROM lrtfm/firedrake-env:latest
+FROM lrtfm/firedrake:env
 
 MAINTAINER Zongze Yang <yangzongze@gmail.com>
 

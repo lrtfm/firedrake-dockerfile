@@ -17,6 +17,7 @@ help_fun() {
     echo "          '$_VERSIONS'"
     echo "        build all the versions if this option is omit"
     echo "    -n: do not build local image"
+    echo "    -x: do not use cached: `--no-cache` for build"
     echo ""
     echo "Example:"
     echo "  $0 # only build local image real-int32"
@@ -29,18 +30,19 @@ help_fun() {
     exit -1
 }
 
-while getopts 'nbhpt:' OPT
+while getopts 'nbhpxt:' OPT
 do
     case $OPT in
         p) PUSH="push";;
         t) VERSIONS=$OPTARG;;
         b) BUILD="build";;
         n) NOLOCAL="nolocal";;
+        x) NOCACHE="--no-cache";;
         ?) help_fun;;
     esac
 done
 
-if [[ "$VERSIONS" == "all" ]]
+if [[ "$VERSIONS" == "all" || "$VERSIONS" == "" ]]
 then
     VERSIONS=$_VERSIONS
 fi
@@ -79,8 +81,8 @@ for version in $VERSIONS
 do
     if [[ "$BUILD" == "build" ]]; then
         echo ""
-        echo "Build image: firedrake-$version"
-        docker build $BARGS -f Dockerfile --build-arg VERSION=$version --tag lrtfm/firedrake:$version .
+        echo "Build image: firedrake:$version"
+        docker build $NOCACHE $BARGS -f Dockerfile --build-arg VERSION=$version --tag lrtfm/firedrake:$version .
     fi
     if [[ "$NOLOCAL" != "nolocal" ]]; then
         echo ""
@@ -96,8 +98,6 @@ done
 if [[ "$PUSH" != "push" ]]; then
     exit 0
 fi
-
-# tag=`date +%Y%m%d`
 
 # echo Those version will be pushed after the build process
 for version in env $VERSIONS
