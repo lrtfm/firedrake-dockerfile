@@ -83,7 +83,7 @@ do
     if [[ "$BUILD" == "build" ]]; then
         echo ""
         echo "Build image: firedrake:$version"
-        docker buildx build --platform $PLATFORM $NOCACHE $BARGS -f Dockerfile --build-arg VERSION=$version --tag lrtfm/firedrake:$version .
+        docker buildx build --push --platform $PLATFORM $NOCACHE $BARGS -f Dockerfile --build-arg VERSION=$version --tag lrtfm/firedrake:$version .
     fi
 done
 
