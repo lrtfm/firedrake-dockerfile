@@ -22,6 +22,7 @@ ARG PETSC_COMMON_OPTS="\
 --download-tetgen \
 --download-hpddm \
 --download-libpng \
+--download-slepc \
 "
 # --download-bamg --download-ctetgen \
 # --download-egads --download-exodusii \
@@ -34,12 +35,11 @@ ARG PETSC_NONDEBUG_OPTS=""
 ARG PETSC_INT64_OPTS="--download-scalapack --download-mumps"
 ARG PETSC_INT32_OPTS="--download-pragmatic"
 
-ARG FIRDRAKE_COMMON_OPTS="--slepc \
+ARG FIRDRAKE_COMMON_OPTS="\
 --no-package-manager --disable-ssh \
 --documentation-dependencies \
---remove-build-files \
 "
-ARG FIRDRAKE_NONDEBUG_OPTS=""
+ARG FIRDRAKE_NONDEBUG_OPTS="--remove-build-files"
 ARG CLEAN_PIP_CACHED="rm -rf /home/firedrake/.cached/pip"
 ARG REAL_INT32="\
 python3 firedrake-install $FIRDRAKE_COMMON_OPTS $FIRDRAKE_NONDEBUG_OPTS \

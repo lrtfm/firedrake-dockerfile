@@ -25,7 +25,7 @@ help_fun() {
     echo "  $0 -t all # build local images all"
     echo "  $0 -b -t real-int32"
     echo "  $0 -p -t 'real-int32 real-int32-debug'"
-    echo "  $0 -p -t \"real-int32 real-int64\""
+    echo "  $0 -p -t \"real-int32 complex-int64\""
     echo ""
     exit -1
 }
@@ -83,6 +83,7 @@ do
         echo ""
         echo "Build image: firedrake:$version"
         docker build $NOCACHE $BARGS -f Dockerfile --build-arg VERSION=$version --tag lrtfm/firedrake:$version .
+        NOCACHE="" # use cache after the first image is taged, as all has been build without tag
     fi
     if [[ "$NOLOCAL" != "nolocal" ]]; then
         echo ""
