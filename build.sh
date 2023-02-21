@@ -2,7 +2,7 @@
 
 set -e
 
-_VERSIONS="real-int32 real-int32-debug complex-int64 complex-int64-debug"
+_VERSIONS="real-int32 real-int32-debug complex-int32 complex-int32-debug complex-int64 complex-int64-debug"
 
 help_fun() {
     echo ""
@@ -103,10 +103,10 @@ fi
 # echo Those version will be pushed after the build process
 for version in env $VERSIONS
 do
-    tag=`docker history --format "{{.CreatedAt}}" lrtfm/firedrake:$version | head -n1 | sed -e 's/\(.*\)T\(.*\)/\1/g'`
-    tag=${tag//-/}
-    docker tag  lrtfm/firedrake:$version lrtfm/firedrake:$version-$tag
+    # tag=`docker history --format "{{.CreatedAt}}" lrtfm/firedrake:$version | head -n1 | sed -e 's/\(.*\)T\(.*\)/\1/g'`
+    # tag=${tag//-/}
+    #docker tag  lrtfm/firedrake:$version lrtfm/firedrake:$version-$tag
     docker push lrtfm/firedrake:$version
-    docker push lrtfm/firedrake:$version-$tag
-    docker rmi  lrtfm/firedrake:$version-$tag
+    # docker push lrtfm/firedrake:$version-$tag
+    # docker rmi  lrtfm/firedrake:$version-$tag
 done
