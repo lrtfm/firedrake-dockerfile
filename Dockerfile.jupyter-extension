@@ -1,6 +1,6 @@
 # Dockerfile for firedrake
 
-ARG BASE_IMAGE=lrtfm/firedrake-real-int32
+ARG BASE_IMAGE=lrtfm/firedrake:real-int32
 
 FROM $BASE_IMAGE
 

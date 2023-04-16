@@ -1,0 +1,18 @@
+diff --git a/src/binding/petsc4py/conf/confpetsc.py b/src/binding/petsc4py/conf/confpetsc.py
+index 5801b146ff..0036a4aea6 100644
+--- a/src/binding/petsc4py/conf/confpetsc.py
++++ b/src/binding/petsc4py/conf/confpetsc.py
+@@ -319,6 +319,12 @@ class PetscConfig:
+         self._configure_ext(extension, petsc_inc, preppend=True)
+         self._configure_ext(extension, petsc_lib)
+
++        # Fix error: Intel MKL FATAL ERROR: Cannot load symbol MKLMPI_Get_wrappers
++        blas_lib = flaglist(self['BLASLAPACK_LIB'])
++        blas_inc = flaglist(self['BLASLAPACK_INCLUDE'])
++        self._configure_ext(extension, blas_inc, preppend=True)
++        self._configure_ext(extension, blas_lib)
++
+     def configure_compiler(self, compiler):
+         if compiler.compiler_type != 'unix': return
+         getenv = os.environ.get
+

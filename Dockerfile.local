@@ -1,6 +1,6 @@
 # Dockerfile for firedrake
 
-ARG BASE_IMAGE=lrtfm/firedrake-real-int32:latest
+ARG BASE_IMAGE=lrtfm/firedrake:real-int32
 
 FROM $BASE_IMAGE
 
@@ -24,4 +24,3 @@ RUN git config --global --add safe.directory '*'
 
 ENV FIREDRAKE_TSFC_KERNEL_CACHE_DIR=/home/$LOCAL_USER/.cache/tsfc
 ENV PYOP2_CACHE_DIR=/home/$LOCAL_USER/.cache/pyop2
-
