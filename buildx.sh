@@ -73,10 +73,13 @@ echo Versions: $VERSIONS
 
 # set -x
 
-BARGS='--network host'
+# BARGS="--network host --allow network.host"
+BARGS="--network host"
 if [[ "$BUILD" == "build" ]]; then
     docker buildx build --push --platform $PLATFORM $BARGS -f Dockerfile.env --tag lrtfm/firedrake:env .
 fi
+
+exit 0
 
 for version in $VERSIONS
 do

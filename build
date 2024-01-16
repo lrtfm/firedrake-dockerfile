@@ -1,4 +1,4 @@
-#!/bin/env python3
+#!env python3
 import os
 import sys
 import click
@@ -49,7 +49,7 @@ def get_petsc_opts(int_type, complex=False, debug=False, mkl=False):
 
     int_type_map = {
         "int32": ["pragmatic"],
-        "int64": ["mumps", "scalapack"]
+        "int64": []
     }
 
     field_map = {
@@ -79,6 +79,7 @@ def get_petsc_opts(int_type, complex=False, debug=False, mkl=False):
 
 def get_firedrake_opts(int_type, complex=False, debug=False, mkl=False):
     common_opts = [
+        "--netgen",
         "--no-package-manager",
         "--disable-ssh",
         "--documentation-dependencies",
